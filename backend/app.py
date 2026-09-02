@@ -4,15 +4,20 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 from collections.abc import AsyncIterator
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from backend import __version__
 from backend.api.routes import router as api_router
 from backend.core.config import get_settings
 from backend.core.database import init_db
 from backend.core.logging import configure_logging, get_logger
+
+# Built frontend (produced by `npm run build`); served in production/deploys.
+FRONTEND_DIST = Path(__file__).resolve().parents[1] / "frontend" / "dist"
 
 
 @asynccontextmanager
@@ -52,6 +57,11 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(api_router)
+
+    # Serve the built single-page frontend from the same origin when present.
+    if FRONTEND_DIST.is_dir():
+        app.mount("/", StaticFiles(directory=str(FRONTEND_DIST), html=True), name="frontend")
+
     return app
 
 

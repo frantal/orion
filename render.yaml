@@ -1,0 +1,19 @@
+# Render Blueprint — deploys ORION as a single Docker web service in DEMO mode
+# (synthetic market, no API keys, no real orders). https://render.com
+services:
+  - type: web
+    name: orion
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: USE_DEMO_DATA
+        value: "true"
+      - key: DEMO_MODE
+        value: "true"
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
